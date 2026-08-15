@@ -1,0 +1,186 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+const int MAX_RECORDS = 100;// array to limit the number of reocord user can enter.
+
+struct MissingPerson {   // structure of mssing person.
+    string name;
+    int age;
+    string gender;
+    string location;
+    string dateMissing;
+    string guardianContact;
+    string physicalDescription;
+    string status; // e.g., "Missing", "Found", etc.
+};
+
+bool login() {
+	cout<<endl;
+	cout<<"\t\t***======MISSING PERSONS MANAGEMENT SYSTEM======***\n";
+	cout<<" \t This system is created to help identify and track missing persons \n\t during war or any critical situation( flood, earthquake etc ).\n\t Inspired by the pain of innocent people, espeacially Palestinians. \n\t It's aim is to bring hope and help.\n";
+    cout<<" \n\t\t\t==WHY==\n \t 1. To collect data, reunit famimilies.\n \t 2. To maintain digital backup of paper records. \n \t 3. A responsible person can use this to share organized report with \n \t    NGOs, or Law inforcement later.\n";
+    cout<<endl;
+    cout<<endl;
+    string username, password;
+    cout << "\n=== Login ===\n";
+    cout << "Username: ";
+    cin >> username;
+    cout << "Password: ";
+    cin >> password;
+    return (username == "imranandzeeshan" && password == "9999"); //returns true or false according to the user.
+}
+
+void addRecord(MissingPerson records[], int &count) {  // this function checks the limit of no of records and update it
+    if (count >= MAX_RECORDS) {
+        cout << "\nRecord limit reached!\n";
+        return;
+    }
+    cout << "\nEnter details for missing person:" << endl;
+    cin.ignore();
+    cout << "Name: ";
+    getline(cin, records[count].name);
+    cout << "Age: ";
+    cin >> records[count].age;
+    cin.ignore();
+    cout << "Gender: ";
+    getline(cin, records[count].gender);
+    cout << "Location Last Seen: ";
+    getline(cin, records[count].location);
+    cout << "Date Missing (dd-mm-yyyy): ";
+    getline(cin, records[count].dateMissing);
+    cout << "Guardian Contact: ";
+    getline(cin, records[count].guardianContact);
+    cout << "Physical Description: ";
+    getline(cin, records[count].physicalDescription);
+    cout << "Status (Missing/Found): ";
+    getline(cin, records[count].status);
+
+    ofstream file("missing_persons.txt", ios::app);
+    if (file.is_open()) {
+        file << records[count].name << " | "
+             << records[count].age << " | "
+             << records[count].gender << " | "
+             << records[count].location << " | "
+             << records[count].dateMissing << " | "
+             << records[count].guardianContact << " | "
+             << records[count].physicalDescription << " | "
+             << records[count].status << endl;
+        file.close();
+        cout << "\nRecord added and saved successfully!\n";
+    } else {
+        cout << "\nError saving to file.\n";
+    }
+    count++;
+}
+
+void displayRecords(const MissingPerson records[], int count) {
+    if (count == 0) {
+        cout << "\nNo records to display.\n";
+        return;
+    }
+    for (int i = 0; i < count; i++) {
+        cout << "\n--- Record " << i + 1 << " ---\n";
+        cout << "Name: " << records[i].name << endl;
+        cout << "Age: " << records[i].age << endl;
+        cout << "Gender: " << records[i].gender << endl;
+        cout << "Location: " << records[i].location << endl;
+        cout << "Date Missing: " << records[i].dateMissing << endl;
+        cout << "Guardian Contact: " << records[i].guardianContact << endl;
+        cout << "Physical Description: " << records[i].physicalDescription << endl;
+        cout << "Status: " << records[i].status << endl;
+    }
+}
+
+void searchByName(const MissingPerson records[], int count) {
+    string searchName;
+    cin.ignore();
+    cout << "\nEnter name to search: ";
+    getline(cin, searchName);
+
+    bool found = false;
+    for (int i = 0; i < count; i++) {
+        if (records[i].name == searchName) {
+            cout << "\nMatch found:\n";
+            cout << "Name: " << records[i].name << endl;
+            cout << "Age: " << records[i].age << endl;
+            cout << "Gender: " << records[i].gender << endl;
+            cout << "Location: " << records[i].location << endl;
+            cout << "Date Missing: " << records[i].dateMissing << endl;
+            cout << "Guardian Contact: " << records[i].guardianContact << endl;
+            cout << "Physical Description: " << records[i].physicalDescription << endl;
+            cout << "Status: " << records[i].status << endl;
+            found = true;
+            break;
+        }
+    }
+    if (!found) {
+        cout << "\nNo matching record found.\n";
+    }
+}
+
+void loadRecords(MissingPerson records[], int &count) {
+    ifstream file("missing_persons.txt");
+    count = 0;
+    if (file.is_open()) {
+        while (!file.eof() && count < MAX_RECORDS) {
+            getline(file, records[count].name, '|');
+            file >> records[count].age;
+            file.ignore();
+            getline(file, records[count].gender, '|');
+            getline(file, records[count].location, '|');
+            getline(file, records[count].dateMissing, '|');
+            getline(file, records[count].guardianContact, '|');
+            getline(file, records[count].physicalDescription, '|');
+            getline(file, records[count].status);
+            if (!records[count].name.empty()) {
+                count++;
+            }
+        }
+        file.close();
+    }
+}
+
+int main() {
+    if (!login()) {
+        cout << "\nAccess Denied.\n";
+        return 0;
+    }
+
+    MissingPerson records[MAX_RECORDS];
+    int count = 0;
+    int choice;
+
+    loadRecords(records, count);
+
+    do {
+        cout << "\n=== Missing Person Management System ===\n";
+        cout << "1. Add New Record\n";
+        cout << "2. Display All Records\n";
+        cout << "3. Search by Name\n";
+        cout << "4. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                addRecord(records, count);
+                break;
+            case 2:
+                displayRecords(records, count);
+                break;
+            case 3:
+                searchByName(records, count);
+                break;
+            case 4:
+                cout << "\nExiting system.\n";
+                break;
+            default:
+                cout << "\nInvalid choice.\n";
+        }
+    } while (choice != 4);
+
+    return 0;
+}
+
