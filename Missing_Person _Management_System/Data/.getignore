@@ -1,1 +1,15 @@
-#program data
+# Program data
+missing_persons.txt
+
+# C++ compiled files
+*.exe
+*.out
+*.o
+
+# IDE/editor files
+.vscode/
+.idea/
+
+# Operating system files
+.DS_Store
+Thumbs.db
